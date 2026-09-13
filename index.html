@@ -199,6 +199,7 @@
     .discount-line-total{text-align:right;white-space:nowrap}
     .discount-summary{margin-top:18px}
     .discount-summary>div{display:flex;justify-content:flex-start;gap:12px;gap:12px;padding:5px 0}
+    #sumDetails,#modalDetails{white-space:normal;overflow-wrap:anywhere;text-align:right}
     @media(max-width:650px){
       .discount-row{grid-template-columns:1fr 90px}
       .discount-row select{grid-column:1/2}
@@ -1623,6 +1624,7 @@ button{
         <div class="result discount-summary">
           <div><span class="muted">กระดุมรวม</span><strong id="sumButtons">0 กระดุม</strong></div>
           <div><span class="muted">ราคาปกติรวม</span><strong id="sumNormal">0 บาท</strong></div>
+          <div><span class="muted">ส่วนลด</span><strong id="sumDetails">-</strong></div>
           <div><span class="muted">ราคาหลังส่วนลด</span><strong id="sumDiscount">0 บาท</strong></div>
         </div>
 
@@ -1669,7 +1671,7 @@ button{
         <div class="result-modal-breakdown">
           <div class="result-modal-row"><span>กระดุมรวม</span><strong id="modalButtons">0 กระดุม</strong></div>
           <div class="result-modal-row"><span>ราคาก่อนส่วนลด</span><strong id="modalNormal">0 บาท</strong></div>
-          <div class="result-modal-row"><span>ส่วนลดรวม</span><strong id="modalSaved">0 บาท</strong></div>
+          <div class="result-modal-row"><span>ส่วนลด</span><strong id="modalDetails">-</strong></div>
         </div>
 
         <button id="modalDoneBtn" class="result-modal-done" type="button">เรียบร้อย</button>
@@ -2051,6 +2053,7 @@ document.getElementById('clearBtn').onclick=()=>{
 
 function calculateDiscountRows(){
   let buttons=0, normal=0, discounted=0;
+  const detailParts=[];
 
   document.querySelectorAll('.discount-row').forEach(row=>{
     const pack=Number(row.dataset.pack);
@@ -2082,16 +2085,22 @@ function calculateDiscountRows(){
     normal += lineNormal;
     discounted += lineFinal;
 
+    if(count > 0){
+      const discountTag = pct > 0 ? ` [ลด ${pct}%]` : '';
+      detailParts.push(`${pack.toLocaleString()} × ${count}${discountTag}`);
+    }
+
     row.querySelector('.discount-line-total').textContent =
       `${lineFinal.toLocaleString()} บาท`;
   });
 
   document.getElementById('sumButtons').textContent=`${buttons.toLocaleString()} กระดุม`;
   document.getElementById('sumNormal').textContent=`${normal.toLocaleString()} บาท`;
+  document.getElementById('sumDetails').textContent = detailParts.length ? detailParts.join(' + ') : '-';
   document.getElementById('sumDiscount').textContent=
     `${discounted.toLocaleString()} บาท`;
 
-  return {buttons,normal,discounted};
+  return {buttons,normal,discounted,details:detailParts.join(' + ')};
 }
 
 
@@ -2116,10 +2125,9 @@ document.getElementById('discountBtn').onclick=()=>{
   playPop();
   animateResult(document.querySelector('.discount-summary'));
 
-  const saved = Math.max(0, result.normal - result.discounted);
   document.getElementById('modalButtons').textContent = `${result.buttons.toLocaleString()} กระดุม`;
   document.getElementById('modalNormal').textContent = `${result.normal.toLocaleString()} บาท`;
-  document.getElementById('modalSaved').textContent = `${saved.toLocaleString()} บาท`;
+  document.getElementById('modalDetails').textContent = result.details || '-';
   document.getElementById('modalFinal').textContent = `${result.discounted.toLocaleString()} บาท`;
 
   const modal = document.getElementById('resultModal');
