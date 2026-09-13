@@ -1,0 +1,2222 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JAXEN Calculator</title>
+  <style>
+    :root{
+      --bg:#070707;
+      --card:#111;
+      --card2:#171717;
+      --line:#2a2a2a;
+      --text:#f5f5f5;
+      --muted:#9d9d9d;
+      --accent:#f2f2f2;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 15% 10%, rgba(255,255,255,.05), transparent 28%),
+        radial-gradient(circle at 90% 80%, rgba(255,255,255,.035), transparent 30%),
+        var(--bg);
+      display:flex;
+      justify-content:center;
+      padding:28px 14px 60px;
+    }
+    .app{width:min(520px,100%)}
+    .brand{
+      text-align:center;
+      padding:18px 0 22px;
+    }
+    .brand h1{
+      margin:0;
+      font-size:38px;
+      letter-spacing:.18em;
+      font-weight:800;
+    }
+    .brand p{
+      margin:7px 0 0;
+      color:var(--muted);
+      font-size:13px;
+      letter-spacing:.08em;
+    }
+    .panel{
+      background:rgba(17,17,17,.92);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:16px;
+      box-shadow:0 18px 60px rgba(0,0,0,.45);
+    }
+    .tabs{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      background:#0c0c0c;
+      padding:6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+    .tab{
+      border:0;
+      background:transparent;
+      color:var(--muted);
+      padding:13px 10px;
+      border-radius:13px;
+      font-size:15px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .tab.active{
+      background:#f2f2f2;
+      color:#0a0a0a;
+    }
+    .section{display:none;padding-top:18px}
+    .section.active{display:block}
+    label{
+      display:block;
+      font-size:13px;
+      color:#cfcfcf;
+      margin-bottom:8px;
+      font-weight:650;
+    }
+    input{
+      width:100%;
+      border:1px solid var(--line);
+      background:#0d0d0d;
+      color:white;
+      border-radius:15px;
+      padding:15px 14px;
+      outline:none;
+      font-size:16px;
+    }
+    input:focus{border-color:#707070}
+    .quick{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:8px;
+      margin:10px 0 14px;
+    }
+    .quick button{
+      padding:10px 4px;
+      background:#171717;
+      border:1px solid var(--line);
+      color:#ddd;
+      border-radius:12px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .mainbtn{
+      width:100%;
+      border:0;
+      border-radius:15px;
+      background:#f2f2f2;
+      color:#080808;
+      font-weight:800;
+      padding:14px;
+      font-size:16px;
+      cursor:pointer;
+    }
+    .subbtn{
+      width:100%;
+      margin-top:9px;
+      border:1px solid var(--line);
+      border-radius:15px;
+      background:#161616;
+      color:#ddd;
+      font-weight:700;
+      padding:12px;
+      cursor:pointer;
+    }
+    .result{
+      margin-top:16px;
+      padding:16px;
+      border:1px dashed #404040;
+      border-radius:18px;
+      background:#0b0b0b;
+    }
+    .result .big{
+      font-size:24px;
+      font-weight:800;
+      margin-bottom:6px;
+    }
+    .muted{color:var(--muted);font-size:13px;line-height:1.6}
+    .packs{
+      margin-top:12px;
+      display:flex;
+      gap:7px;
+      flex-wrap:wrap;
+    }
+    .chip{
+      background:#1a1a1a;
+      border:1px solid #303030;
+      border-radius:999px;
+      padding:7px 10px;
+      font-size:12px;
+      color:#d8d8d8;
+    }
+    .ratebox{
+      margin-top:14px;
+      border-top:1px solid var(--line);
+      padding-top:14px;
+    }
+    details{
+      background:#0d0d0d;
+      border:1px solid var(--line);
+      border-radius:15px;
+      padding:12px 14px;
+    }
+    summary{cursor:pointer;font-weight:700}
+    .rates{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:7px 12px;
+      margin-top:12px;
+      font-size:13px;
+      color:#d0d0d0;
+    }
+    .two{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+    .foot{
+      text-align:center;
+      color:#666;
+      font-size:11px;
+      padding:14px 0 0;
+    }
+  
+    .discount-head{margin-bottom:14px}
+    .discount-row{display:grid;grid-template-columns:1.25fr .8fr 1.2fr .8fr;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid #252525}
+    .discount-pack{display:flex;flex-direction:column;gap:3px}
+    .discount-pack span{font-size:12px;color:#999}
+    .discount-row input,.discount-row select{width:100%;box-sizing:border-box}
+    .discount-line-total{text-align:right;white-space:nowrap}
+    .discount-summary{margin-top:18px}
+    .discount-summary>div{display:flex;justify-content:flex-start;gap:12px;gap:12px;padding:5px 0}
+    @media(max-width:650px){
+      .discount-row{grid-template-columns:1fr 90px}
+      .discount-row select{grid-column:1/2}
+      .discount-line-total{grid-column:2/3;grid-row:2}
+    }
+
+    .qty-stepper{
+      display:grid;
+      grid-template-columns:38px minmax(56px,1fr) 38px;
+      align-items:center;
+      gap:6px;
+    }
+    .qty-stepper .discount-count{
+      text-align:center;
+      min-width:0;
+      appearance:textfield;
+      -moz-appearance:textfield;
+    }
+    .qty-stepper .discount-count::-webkit-outer-spin-button,
+    .qty-stepper .discount-count::-webkit-inner-spin-button{
+      -webkit-appearance:none;
+      margin:0;
+    }
+    .qty-btn{
+      width:38px;
+      height:38px;
+      border-radius:12px;
+      border:1px solid #333;
+      background:#151515;
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      transition:.16s ease;
+      padding:0;
+    }
+    .qty-btn:hover{
+      transform:translateY(-1px);
+      border-color:#777;
+      background:#202020;
+    }
+    .qty-btn:active{
+      transform:scale(.94);
+    }
+    .qty-btn svg{
+      width:18px;
+      height:18px;
+      fill:none;
+      stroke:currentColor;
+      stroke-width:2.2;
+      stroke-linecap:round;
+    }
+    .qty-btn.plus{
+      background:linear-gradient(180deg,#242424,#111);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+    }
+    .qty-btn.minus{
+      color:#aaa;
+    }
+    .discount-select{
+      background-image:none;
+      cursor:pointer;
+    }
+
+
+    /* Refined discount selector + price */
+    .discount-row{
+      position:relative;
+    }
+    .discount-select{
+      appearance:none;
+      -webkit-appearance:none;
+      min-height:42px;
+      padding:0 40px 0 14px;
+      border:1px solid #343434;
+      border-radius:14px;
+      background:
+        linear-gradient(45deg,transparent 50%,#a8a8a8 50%) calc(100% - 18px) 18px/6px 6px no-repeat,
+        linear-gradient(135deg,#a8a8a8 50%,transparent 50%) calc(100% - 13px) 18px/6px 6px no-repeat,
+        linear-gradient(180deg,#1b1b1b,#111);
+      color:#f4f4f4;
+      font-weight:700;
+      letter-spacing:.01em;
+      outline:none;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.06),
+        0 8px 24px rgba(0,0,0,.12);
+      transition:.18s ease;
+    }
+    .discount-select:hover{
+      border-color:#565656;
+      background:
+        linear-gradient(45deg,transparent 50%,#fff 50%) calc(100% - 18px) 18px/6px 6px no-repeat,
+        linear-gradient(135deg,#fff 50%,transparent 50%) calc(100% - 13px) 18px/6px 6px no-repeat,
+        linear-gradient(180deg,#222,#151515);
+    }
+    .discount-select:focus{
+      border-color:#777;
+      box-shadow:
+        0 0 0 3px rgba(255,255,255,.06),
+        inset 0 1px 0 rgba(255,255,255,.08);
+    }
+    .discount-select option{
+      background:#171717;
+      color:#f6f6f6;
+    }
+    .discount-line-total{
+      justify-self:end;
+      min-width:92px;
+      padding:9px 12px;
+      border:1px solid #2f2f2f;
+      border-radius:13px;
+      background:linear-gradient(180deg,#191919,#111);
+      color:#fff;
+      font-size:16px;
+      font-weight:800;
+      text-align:center;
+      letter-spacing:.01em;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    @media(max-width:650px){
+      .discount-select{min-height:40px}
+      .discount-line-total{
+        min-width:84px;
+        font-size:15px;
+        padding:8px 10px;
+      }
+    }
+
+
+    /* v9: fix Thai text overflow + stronger action buttons */
+    .discount-row{
+      grid-template-columns:minmax(125px,1.35fr) minmax(145px,1fr) minmax(125px,1.05fr) minmax(92px,.72fr);
+      column-gap:12px;
+    }
+    .discount-pack{
+      min-width:0;
+      padding-right:4px;
+    }
+    .discount-pack strong,
+    .discount-pack span{
+      display:block;
+      max-width:100%;
+      white-space:normal;
+      overflow-wrap:anywhere;
+      word-break:normal;
+      line-height:1.35;
+    }
+    .discount-pack strong{
+      font-size:16px;
+    }
+    .discount-pack span{
+      margin-top:3px;
+    }
+
+    #discountBtn.action-calc,
+    #discountClearBtn.action-clear{
+      width:100%;
+      min-height:58px;
+      border-radius:17px;
+      font-weight:800;
+      letter-spacing:.01em;
+      transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    }
+    #discountBtn.action-calc{
+      color:#0d0d0d;
+      border:1px solid #fff;
+      background:linear-gradient(180deg,#ffffff 0%,#e8e8e8 100%);
+      box-shadow:
+        0 10px 28px rgba(0,0,0,.28),
+        inset 0 1px 0 rgba(255,255,255,.9);
+    }
+    #discountBtn.action-calc:hover{
+      transform:translateY(-2px);
+      box-shadow:0 14px 32px rgba(0,0,0,.34);
+    }
+    #discountBtn.action-calc:active{
+      transform:translateY(0) scale(.985);
+    }
+    #discountClearBtn.action-clear{
+      margin-top:10px;
+      color:#d0d0d0;
+      border:1px solid #303030;
+      background:linear-gradient(180deg,#171717,#101010);
+    }
+    #discountClearBtn.action-clear:hover{
+      color:#fff;
+      border-color:#555;
+      transform:translateY(-1px);
+    }
+    .action-icon{
+      width:21px;
+      height:21px;
+      display:inline-block;
+      flex:0 0 auto;
+    }
+
+    @media(max-width:650px){
+      .discount-row{
+        grid-template-columns:minmax(115px,1fr) minmax(138px,1fr);
+      }
+      .discount-pack strong{font-size:15px}
+    }
+
+
+    /* v11: keep all discount-row controls inside the card */
+    #discount{
+      overflow:hidden;
+    }
+
+    .discount-row{
+      grid-template-columns:
+        minmax(110px,1.05fr)
+        minmax(135px,.95fr)
+        minmax(115px,.95fr)
+        minmax(84px,.72fr);
+      column-gap:10px;
+      width:100%;
+      box-sizing:border-box;
+    }
+
+    .discount-row > *{
+      min-width:0;
+    }
+
+    .qty-stepper{
+      grid-template-columns:36px minmax(48px,1fr) 36px;
+      gap:5px;
+      min-width:0;
+    }
+
+    .qty-btn{
+      width:36px;
+      height:36px;
+      border-radius:11px;
+    }
+
+    .discount-select{
+      width:100%;
+      min-width:0;
+      padding-left:12px;
+      padding-right:34px;
+      font-size:14px;
+    }
+
+    .discount-line-total{
+      width:100%;
+      min-width:0;
+      box-sizing:border-box;
+      padding:9px 8px;
+      font-size:14px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    @media(max-width:760px){
+      .discount-row{
+        grid-template-columns:minmax(110px,1fr) minmax(130px,1fr);
+        row-gap:9px;
+      }
+
+      .discount-select{
+        grid-column:1/2;
+      }
+
+      .discount-line-total{
+        grid-column:2/3;
+        grid-row:2;
+      }
+    }
+
+
+    /* v12: futuristic action buttons */
+    #discountBtn.action-calc{
+      position:relative;
+      overflow:hidden;
+      min-height:62px;
+      border:1px solid #4a4a4a;
+      border-radius:18px;
+      color:#fff;
+      background:
+        radial-gradient(circle at 20% 0%,rgba(255,255,255,.12),transparent 34%),
+        linear-gradient(135deg,#222 0%,#0b0b0b 52%,#1b1b1b 100%);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.13),
+        inset 0 -1px 0 rgba(255,255,255,.03),
+        0 12px 30px rgba(0,0,0,.32);
+    }
+    #discountBtn.action-calc::before{
+      content:"";
+      position:absolute;
+      width:120px;
+      height:160%;
+      top:-30%;
+      left:-150px;
+      transform:skewX(-22deg);
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent);
+      transition:left .5s ease;
+      pointer-events:none;
+    }
+    #discountBtn.action-calc:hover::before{left:110%}
+    #discountBtn.action-calc:hover{
+      border-color:#737373;
+      transform:translateY(-2px);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.16),
+        0 16px 36px rgba(0,0,0,.4);
+    }
+    #discountBtn.action-calc .action-icon{
+      padding:5px;
+      border:1px solid #555;
+      border-radius:9px;
+      background:#0c0c0c;
+      box-sizing:content-box;
+    }
+
+    #discountClearBtn.action-clear{
+      min-height:54px;
+      border:1px solid #292929;
+      border-radius:17px;
+      color:#999;
+      background:#0c0c0c;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.025);
+    }
+    #discountClearBtn.action-clear:hover{
+      color:#e8e8e8;
+      border-color:#464646;
+      background:#121212;
+    }
+    #discountClearBtn.action-clear .action-icon{
+      width:18px;
+      height:18px;
+      opacity:.8;
+    }
+
+
+    /* v14: result popup */
+    .result-modal{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:22px;
+      background:rgba(0,0,0,.68);
+      backdrop-filter:blur(7px);
+      -webkit-backdrop-filter:blur(7px);
+      z-index:9999;
+    }
+    .result-modal.show{
+      display:flex;
+      animation:modalFade .18s ease-out;
+    }
+    .result-modal-card{
+      width:min(420px,100%);
+      border:1px solid #3b3b3b;
+      border-radius:24px;
+      background:
+        radial-gradient(circle at 18% 0%,rgba(255,255,255,.09),transparent 34%),
+        linear-gradient(180deg,#171717 0%,#0c0c0c 100%);
+      box-shadow:
+        0 28px 80px rgba(0,0,0,.55),
+        inset 0 1px 0 rgba(255,255,255,.08);
+      padding:24px;
+      transform-origin:center;
+      animation:modalPop .22s cubic-bezier(.2,.9,.25,1.1);
+    }
+    .result-modal-top{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:18px;
+    }
+    .result-modal-icon{
+      width:42px;
+      height:42px;
+      border-radius:13px;
+      border:1px solid #494949;
+      background:#0b0b0b;
+      display:grid;
+      place-items:center;
+      flex:0 0 auto;
+    }
+    .result-modal-icon svg{
+      width:21px;
+      height:21px;
+    }
+    .result-modal-title{
+      font-size:18px;
+      font-weight:800;
+      color:#fff;
+    }
+    .result-modal-sub{
+      margin-top:2px;
+      font-size:12px;
+      color:#8f8f8f;
+    }
+    .result-modal-total{
+      padding:18px;
+      border:1px solid #303030;
+      border-radius:18px;
+      background:#0a0a0a;
+      text-align:center;
+      margin-bottom:14px;
+    }
+    .result-modal-total .label{
+      font-size:12px;
+      color:#8f8f8f;
+      margin-bottom:6px;
+    }
+    .result-modal-total .value{
+      font-size:30px;
+      line-height:1.15;
+      font-weight:900;
+      color:#fff;
+      letter-spacing:-.02em;
+    }
+    .result-modal-breakdown{
+      border-top:1px solid #272727;
+      padding-top:12px;
+      margin-top:4px;
+    }
+    .result-modal-row{
+      display:flex;
+      justify-content:flex-start;gap:12px;
+      gap:12px;
+      padding:7px 0;
+      font-size:14px;
+    }
+    .result-modal-row span:first-child{color:#969696}
+    .result-modal-row strong{color:#f5f5f5}
+    .result-modal-done{
+      width:100%;
+      min-height:52px;
+      margin-top:18px;
+      border:1px solid #fff;
+      border-radius:16px;
+      background:linear-gradient(180deg,#fff,#e9e9e9);
+      color:#0c0c0c;
+      font-size:15px;
+      font-weight:900;
+      cursor:pointer;
+      transition:.16s ease;
+    }
+    .result-modal-done:hover{
+      transform:translateY(-1px);
+      box-shadow:0 10px 26px rgba(255,255,255,.08);
+    }
+    .result-modal-done:active{transform:scale(.985)}
+    @keyframes modalFade{
+      from{opacity:0}
+      to{opacity:1}
+    }
+    @keyframes modalPop{
+      from{opacity:0;transform:translateY(10px) scale(.95)}
+      to{opacity:1;transform:translateY(0) scale(1)}
+    }
+
+
+    /* v20: compact dark result card */
+    .result-modal-card{
+      width:min(380px,100%);
+      padding:20px;
+      border-radius:21px;
+      border:1px solid #363636;
+      background:
+        radial-gradient(circle at 16% 0%,rgba(255,255,255,.07),transparent 30%),
+        linear-gradient(180deg,#151515,#090909);
+      box-shadow:0 24px 70px rgba(0,0,0,.58), inset 0 1px 0 rgba(255,255,255,.07);
+      animation:compactSlide .24s cubic-bezier(.2,.85,.25,1);
+      position:relative;
+      overflow:hidden;
+    }
+    .result-modal-card::before{
+      content:"";
+      position:absolute;
+      left:10%;
+      right:10%;
+      top:0;
+      height:1px;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,.72),transparent);
+      animation:borderFlash .65s ease-out both;
+    }
+    .result-modal-top{
+      margin-bottom:13px;
+      gap:10px;
+    }
+    .result-modal-icon{
+      width:36px;
+      height:36px;
+      border-radius:11px;
+      border-color:#3c3c3c;
+    }
+    .result-modal-icon svg{
+      width:18px;
+      height:18px;
+    }
+    .result-modal-title{
+      font-size:17px;
+    }
+    .result-modal-sub{
+      display:none;
+    }
+    .result-modal-total{
+      padding:16px 14px;
+      border-radius:16px;
+      margin-bottom:11px;
+    }
+    .result-modal-total .label{
+      margin-bottom:4px;
+      font-size:11px;
+      letter-spacing:.04em;
+    }
+    .result-modal-total .value{
+      font-size:29px;
+    }
+    .result-modal-breakdown{
+      padding-top:9px;
+    }
+    .result-modal-row{
+      padding:6px 1px;
+      font-size:13px;
+    }
+    .result-modal-done{
+      min-height:48px;
+      margin-top:14px;
+      border-color:#353535;
+      background:linear-gradient(180deg,#171717,#0d0d0d);
+      color:#f2f2f2;
+      border-radius:14px;
+      position:relative;
+    }
+    .result-modal-done::after{
+      content:"→";
+      margin-left:9px;
+      color:#8d8d8d;
+      transition:transform .15s ease;
+      display:inline-block;
+    }
+    .result-modal-done:hover{
+      border-color:#555;
+      background:#181818;
+      box-shadow:none;
+    }
+    .result-modal-done:hover::after{
+      transform:translateX(3px);
+    }
+    @keyframes compactSlide{
+      from{opacity:0;transform:translateY(16px) scale(.98)}
+      to{opacity:1;transform:translateY(0) scale(1)}
+    }
+    @keyframes borderFlash{
+      0%{opacity:0;transform:scaleX(.25)}
+      45%{opacity:1;transform:scaleX(1)}
+      100%{opacity:.28;transform:scaleX(1)}
+    }
+
+
+    /* v23: make rate list easier to scan — quantity and price stay close together */
+    .rate-list{
+      display:flex;
+      flex-direction:column;
+      gap:0;
+      width:100%;
+    }
+    .rate-row{
+      display:grid;
+      grid-template-columns:max-content max-content;
+      justify-content:start;
+      align-items:baseline;
+      column-gap:14px;
+      padding:5px 0;
+    }
+    .rate-row > *:last-child{
+      text-align:left;
+      margin-left:0 !important;
+      justify-self:start;
+    }
+    @media (max-width:560px){
+      .rate-row{
+        column-gap:10px;
+      }
+    }
+
+
+    /* v24: rate quantity + price stay visually paired */
+    details .rate-list,
+    .rate-card .rate-list,
+    .rates .rate-list{
+      width:auto !important;
+      max-width:100% !important;
+    }
+
+    .rate-row,
+    .rate-item{
+      display:flex !important;
+      align-items:baseline !important;
+      justify-content:flex-start !important;
+      gap:12px !important;
+      width:max-content !important;
+      max-width:100% !important;
+      padding:5px 0 !important;
+    }
+
+    .rate-row > *,
+    .rate-item > *{
+      flex:0 0 auto !important;
+      width:auto !important;
+      margin:0 !important;
+      text-align:left !important;
+      justify-self:auto !important;
+    }
+
+    /* If the original table uses spans inside a generic row */
+    details .rates-row,
+    details .price-row{
+      display:flex !important;
+      justify-content:flex-start !important;
+      align-items:baseline !important;
+      gap:12px !important;
+      width:max-content !important;
+      max-width:100% !important;
+    }
+    details .rates-row > *,
+    details .price-row > *{
+      width:auto !important;
+      flex:none !important;
+      margin:0 !important;
+      text-align:left !important;
+    }
+
+
+    /* v27: keep each rate visibly paired */
+    #rateList{
+      display:flex !important;
+      flex-direction:column !important;
+      align-items:flex-start !important;
+      width:auto !important;
+      max-width:100% !important;
+      gap:0 !important;
+    }
+    #rateList .rate-row{
+      display:grid !important;
+      grid-template-columns:120px max-content !important;
+      justify-content:start !important;
+      align-items:baseline !important;
+      gap:14px !important;
+      width:auto !important;
+      padding:5px 0 !important;
+    }
+    #rateList .rate-row span{
+      width:auto !important;
+      margin:0 !important;
+      text-align:left !important;
+      white-space:nowrap !important;
+    }
+    @media (max-width:480px){
+      #rateList .rate-row{
+        grid-template-columns:108px max-content !important;
+        gap:10px !important;
+      }
+    }
+
+
+    /* v28: two-column rate board */
+    #rateList{
+      display:grid !important;
+      grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
+      column-gap:34px !important;
+      row-gap:0 !important;
+      width:100% !important;
+      max-width:none !important;
+    }
+    #rateList .rate-row{
+      display:grid !important;
+      grid-template-columns:max-content 1fr max-content !important;
+      align-items:baseline !important;
+      gap:8px !important;
+      width:100% !important;
+      padding:7px 0 !important;
+      min-width:0 !important;
+    }
+    #rateList .rate-row::after{
+      content:"";
+      grid-column:2;
+      grid-row:1;
+      border-bottom:1px dotted rgba(255,255,255,.16);
+      transform:translateY(-3px);
+      min-width:12px;
+    }
+    #rateList .rate-row span:first-child{
+      grid-column:1;
+      grid-row:1;
+    }
+    #rateList .rate-row span:last-child{
+      grid-column:3;
+      grid-row:1;
+      text-align:right !important;
+    }
+    @media (max-width:620px){
+      #rateList{
+        grid-template-columns:1fr !important;
+      }
+    }
+
+
+    /* v31: compact sound toggle */
+    .sound-toggle{
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      z-index:120;
+      width:42px;
+      height:42px;
+      border-radius:13px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(12,12,12,.82);
+      color:#e8e8e8;
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
+      box-shadow:0 10px 30px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.06);
+      transition:.18s ease;
+    }
+    .sound-toggle:hover{
+      transform:translateY(-2px);
+      border-color:rgba(255,255,255,.28);
+      background:#171717;
+    }
+    .sound-toggle:active{transform:scale(.95)}
+    .sound-toggle svg{width:18px;height:18px}
+    .sound-toggle .sound-off{display:none}
+    .sound-toggle.muted{
+      color:#777;
+      border-color:rgba(255,255,255,.08);
+      background:rgba(8,8,8,.78);
+    }
+    .sound-toggle.muted .sound-on{display:none}
+    .sound-toggle.muted .sound-off{display:block}
+    @media(max-width:560px){
+      .sound-toggle{right:14px;bottom:14px;width:40px;height:40px}
+    }
+
+
+/* v33 — JAXEN dark dashboard facelift */
+#mainCalculator .quick-btn,
+#mainCalculator .preset-btn,
+#mainCalculator button[data-value]{
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(180deg,#171717 0%,#111 100%) !important;
+  border:1px solid rgba(255,255,255,.10) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+  transition:transform .16s ease,border-color .16s ease,background .16s ease,box-shadow .16s ease;
+}
+#mainCalculator .quick-btn:hover,
+#mainCalculator .preset-btn:hover,
+#mainCalculator button[data-value]:hover{
+  transform:translateY(-1px);
+  border-color:rgba(255,255,255,.24) !important;
+  background:linear-gradient(180deg,#1d1d1d,#131313) !important;
+}
+#mainCalculator .quick-btn:active,
+#mainCalculator .preset-btn:active,
+#mainCalculator button[data-value]:active{transform:scale(.975)}
+
+#mainCalculator .primary-btn,
+#mainCalculator button[type="submit"]{
+  color:#f4f4f4 !important;
+  background:
+    radial-gradient(circle at 50% -80%,rgba(255,255,255,.22),transparent 52%),
+    linear-gradient(180deg,#202020,#101010) !important;
+  border:1px solid rgba(255,255,255,.18) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 12px 34px rgba(0,0,0,.28);
+}
+#mainCalculator .primary-btn:hover,
+#mainCalculator button[type="submit"]:hover{
+  border-color:rgba(255,255,255,.32) !important;
+  background:
+    radial-gradient(circle at 50% -80%,rgba(255,255,255,.28),transparent 54%),
+    linear-gradient(180deg,#252525,#111) !important;
+}
+
+/* Result card: premium game-dashboard feel */
+#resultCard,
+.result-card{
+  position:relative;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 82% 0%,rgba(255,255,255,.055),transparent 30%),
+    linear-gradient(145deg,rgba(13,13,13,.98),rgba(6,6,6,.99)) !important;
+  border:1px solid rgba(255,255,255,.13) !important;
+  border-radius:22px !important;
+  box-shadow:0 24px 65px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.035);
+}
+#resultCard::before,
+.result-card::before{
+  content:"";
+  position:absolute;
+  left:22px;right:22px;top:0;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);
+  opacity:.55;
+}
+#resultCard h2,
+#resultCard h3,
+.result-card h2,
+.result-card h3{
+  letter-spacing:-.025em;
+}
+#resultCard .package-line,
+.result-card .package-line{
+  border:1px solid rgba(255,255,255,.09);
+  background:rgba(255,255,255,.025);
+  border-radius:14px;
+  padding:12px 14px;
+}
+#resultCard .summary-row,
+.result-card .summary-row{
+  border-bottom-color:rgba(255,255,255,.065) !important;
+}
+#resultCard strong,
+.result-card strong{
+  text-shadow:0 0 22px rgba(255,255,255,.07);
+}
+#resultCard .tag,
+#resultCard .badge,
+.result-card .tag,
+.result-card .badge{
+  background:linear-gradient(180deg,#1b1b1b,#111) !important;
+  border:1px solid rgba(255,255,255,.13) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+}
+
+
+/* v35 — futuristic control zone */
+#buttons > label{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  color:#d8d8d8;
+  font-size:13px;
+  letter-spacing:.04em;
+  margin-bottom:8px;
+}
+#buttons > label::before{
+  content:"";
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:#f2f2f2;
+  box-shadow:0 0 12px rgba(255,255,255,.65);
+}
+
+#buttons #wanted{
+  height:64px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.12);
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.025),transparent 20%),
+    #0b0b0b;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.035),
+    0 14px 38px rgba(0,0,0,.16);
+  font-size:21px;
+  font-weight:600;
+  letter-spacing:.01em;
+  transition:.18s ease;
+}
+#buttons #wanted:focus{
+  border-color:rgba(255,255,255,.28);
+  box-shadow:
+    0 0 0 3px rgba(255,255,255,.035),
+    inset 0 1px 0 rgba(255,255,255,.05),
+    0 16px 42px rgba(0,0,0,.22);
+}
+
+#buttons .quick{
+  gap:10px;
+  margin:12px 0 16px;
+}
+#buttons .quick button{
+  min-height:48px;
+  border-radius:14px;
+  color:#f0f0f0;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.012)),
+    #101010;
+  border:1px solid rgba(255,255,255,.11);
+  font-size:15px;
+  letter-spacing:.02em;
+  position:relative;
+  overflow:hidden;
+}
+#buttons .quick button::before{
+  content:"";
+  position:absolute;
+  left:18%;
+  right:18%;
+  top:0;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);
+  opacity:.36;
+}
+#buttons .quick button:hover{
+  transform:translateY(-2px);
+  border-color:rgba(255,255,255,.25);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.018)),
+    #121212;
+  box-shadow:0 10px 25px rgba(0,0,0,.18);
+}
+#buttons .quick button:active{transform:translateY(0) scale(.98)}
+
+#buttons .mainbtn{
+  position:relative;
+  overflow:hidden;
+  min-height:62px;
+  border-radius:17px;
+  border:1px solid rgba(255,255,255,.22);
+  color:#fff;
+  background:
+    radial-gradient(circle at 50% -120%,rgba(255,255,255,.26),transparent 55%),
+    linear-gradient(180deg,#202020 0%,#111 58%,#0b0b0b 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.11),
+    inset 0 -1px 0 rgba(255,255,255,.025),
+    0 16px 40px rgba(0,0,0,.24);
+  font-size:17px;
+  letter-spacing:.06em;
+  text-shadow:0 0 16px rgba(255,255,255,.16);
+  transition:.18s ease;
+}
+#buttons .mainbtn::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:16%;
+  right:16%;
+  height:1px;
+  background:linear-gradient(90deg,transparent,#fff,transparent);
+  opacity:.55;
+}
+#buttons .mainbtn::after{
+  content:"EXECUTE";
+  position:absolute;
+  right:18px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:8px;
+  letter-spacing:.18em;
+  color:rgba(255,255,255,.24);
+  font-weight:700;
+}
+#buttons .mainbtn:hover{
+  transform:translateY(-1px);
+  border-color:rgba(255,255,255,.36);
+  background:
+    radial-gradient(circle at 50% -120%,rgba(255,255,255,.34),transparent 58%),
+    linear-gradient(180deg,#252525 0%,#121212 60%,#0b0b0b 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.14),
+    0 20px 48px rgba(0,0,0,.28);
+}
+#buttons .mainbtn:active{transform:scale(.992)}
+
+#buttons .subbtn{
+  min-height:52px;
+  margin-top:10px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.018);
+  color:#a9a9a9;
+  font-size:13px;
+  letter-spacing:.08em;
+  transition:.18s ease;
+}
+#buttons .subbtn:hover{
+  color:#eee;
+  border-color:rgba(255,255,255,.17);
+  background:rgba(255,255,255,.035);
+}
+
+@media(max-width:520px){
+  #buttons #wanted{height:60px}
+  #buttons .quick{gap:8px}
+  #buttons .quick button{min-height:46px;font-size:14px}
+  #buttons .mainbtn{min-height:59px}
+  #buttons .mainbtn::after{display:none}
+}
+
+
+/* v41 — subtle controlled-tone polish */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 20% 0%,rgba(255,255,255,.028),transparent 28%),
+    radial-gradient(circle at 80% 100%,rgba(255,255,255,.018),transparent 26%);
+  z-index:-1;
+}
+
+.site-card,
+.card,
+.panel{
+  box-shadow:
+    0 24px 70px rgba(0,0,0,.24),
+    inset 0 1px 0 rgba(255,255,255,.028);
+}
+
+/* Header polish */
+header,
+.header,
+.hero{
+  position:relative;
+}
+header::after,
+.header::after,
+.hero::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:-1px;
+  width:min(180px,42%);
+  height:1px;
+  transform:translateX(-50%);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);
+  opacity:.7;
+}
+
+.brand,
+.logo,
+h1{
+  text-shadow:0 0 24px rgba(255,255,255,.055);
+}
+
+/* Tiny system accents */
+.section-title,
+.card-title,
+label{
+  letter-spacing:.025em;
+}
+
+.section-title::after,
+.card-title::after{
+  content:"";
+  display:inline-block;
+  width:18px;
+  height:1px;
+  margin-left:8px;
+  vertical-align:middle;
+  background:rgba(255,255,255,.18);
+}
+
+/* Inputs and controls */
+input,
+select{
+  background-image:
+    linear-gradient(180deg,rgba(255,255,255,.018),rgba(255,255,255,0)) !important;
+}
+input:hover,
+select:hover{
+  border-color:rgba(255,255,255,.16) !important;
+}
+
+/* Give important cards a faint technical corner */
+#resultCard::after,
+.result-card::after,
+.rate-panel::after,
+#ratePanel::after{
+  content:"";
+  position:absolute;
+  right:12px;
+  bottom:12px;
+  width:16px;
+  height:16px;
+  border-right:1px solid rgba(255,255,255,.11);
+  border-bottom:1px solid rgba(255,255,255,.11);
+  border-radius:0 0 8px 0;
+  pointer-events:none;
+}
+
+/* Softer separators */
+hr,
+.divider{
+  border-color:rgba(255,255,255,.065) !important;
+}
+
+/* Footer becomes quieter and cleaner */
+footer,
+.footer{
+  opacity:.72;
+  letter-spacing:.035em;
+}
+
+/* Sound button: slightly more integrated */
+.sound-toggle{
+  box-shadow:
+    0 12px 32px rgba(0,0,0,.28),
+    inset 0 1px 0 rgba(255,255,255,.05),
+    0 0 0 1px rgba(255,255,255,.015);
+}
+.sound-toggle:hover{
+  box-shadow:
+    0 16px 38px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,255,255,.07);
+}
+
+/* Subtle motion only */
+@keyframes jaxenGlow{
+  0%,100%{opacity:.28}
+  50%{opacity:.48}
+}
+#resultCard::before,
+.result-card::before{
+  animation:jaxenGlow 3.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion:reduce){
+  #resultCard::before,
+  .result-card::before{animation:none}
+}
+
+
+/* v44 — mobile tap reliability */
+button,
+.tab,
+.quick button,
+.mainbtn,
+.subbtn,
+.sound-toggle,
+.result-modal-done,
+summary{
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+}
+button{
+  cursor:pointer;
+}
+
+
+/* ===== JAXEN gothic motif preview only ===== */
+.jaxen-deco{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+  z-index:0;
+}
+.jaxen-deco svg{
+  position:absolute;
+  fill:none;
+  stroke:rgba(255,255,255,.055);
+  stroke-width:1.1;
+  vector-effect:non-scaling-stroke;
+  filter:drop-shadow(0 0 10px rgba(255,255,255,.015));
+}
+.jaxen-deco .deco-star{
+  width:min(38vw,420px);
+  left:-70px;
+  top:72px;
+  transform:rotate(-7deg);
+}
+.jaxen-deco .deco-cross{
+  width:min(22vw,250px);
+  right:-34px;
+  bottom:70px;
+  transform:rotate(2deg);
+  stroke:rgba(255,255,255,.065);
+}
+.site-card,.card,.panel,header,.brand,main,footer{
+  position:relative;
+  z-index:1;
+}
+@media (max-width:620px){
+  .jaxen-deco .deco-star{
+    width:300px;
+    left:-125px;
+    top:105px;
+    opacity:.9;
+  }
+  .jaxen-deco .deco-cross{
+    width:170px;
+    right:-68px;
+    bottom:105px;
+    opacity:.85;
+  }
+}
+
+</style>
+</head>
+<body>
+
+<div class="jaxen-deco" aria-hidden="true">
+  <svg class="deco-star" viewBox="0 0 100 100">
+    <path d="M50 4 L61.2 36.2 L95 37 L68.1 57.3 L77.8 90 L50 71 L22.2 90 L31.9 57.3 L5 37 L38.8 36.2 Z"/>
+  </svg>
+
+  <svg class="deco-cross" viewBox="0 0 100 160">
+    <path d="M50 5
+             C54 18 58 24 66 28
+             C61 35 59 43 59 52
+             C69 52 78 48 84 43
+             C88 50 93 55 98 58
+             C91 62 87 67 84 74
+             C77 69 68 66 59 66
+             L59 116
+             C59 131 63 141 69 148
+             C61 151 55 156 50 160
+             C45 156 39 151 31 148
+             C37 141 41 131 41 116
+             L41 66
+             C32 66 23 69 16 74
+             C13 67 9 62 2 58
+             C7 55 12 50 16 43
+             C22 48 31 52 41 52
+             C41 43 39 35 34 28
+             C42 24 46 18 50 5 Z"/>
+  </svg>
+</div>
+
+  <main class="app">
+    <header class="brand">
+      <h1>JAXEN</h1>
+      <p>BUTTON CALCULATOR</p>
+    </header>
+
+    <div class="panel">
+      <div class="tabs">
+        <button type="button" class="tab active" data-tab="buttons">คำนวณกระดุม</button>
+        <button type="button" class="tab" data-tab="discount">คำนวณส่วนลด</button>
+      </div>
+
+      <section id="buttons" class="section active">
+        <label for="wanted">จำนวนกระดุมที่ต้องการ</label>
+        <input id="wanted" inputmode="numeric" type="number" min="1" placeholder="เช่น 1300" />
+
+        <div class="quick">
+          <button type="button" data-q="888">888</button>
+          <button type="button" data-q="1888">1,888</button>
+          <button type="button" data-q="3888">3,888</button>
+          <button type="button" data-q="7888">7,888</button>
+        </div>
+
+        <button type="button" id="calcBtn" class="mainbtn">คำนวณ</button>
+        <button type="button" id="clearBtn" class="subbtn">ล้าง</button>
+
+        <div id="result" class="result">
+          <div class="big">ตอนนี้: 0 กระดุม / 0 บาท</div>
+          <div class="muted">ตัวอย่างนี้จะเลือกชุดแพ็กที่ “ถึงจำนวนที่ต้องการและราคาต่ำที่สุด” จากเรทที่ให้มา</div>
+        </div>
+
+        <div class="ratebox">
+          <details>
+            <summary>ดูเรทราคา</summary>
+            <div class="rates" id="rateList"></div>
+          </details>
+        </div>
+      </section>
+
+      <section id="discount" class="section">
+        <div class="discount-head">
+          <div class="big">เลือกแพ็กและส่วนลด</div>
+          <div class="muted">เลือกจำนวนแพ็กได้เลย และแต่ละแพ็กสามารถใช้ส่วนลดต่างกันได้</div>
+        </div>
+
+        <div id="discountRows">
+
+          <div class="discount-row" data-pack="66" data-price="29">
+            <div class="discount-pack"><strong>66 กระดุม</strong><span>29 บาท/แพ็ก</span></div>
+
+            <div class="qty-stepper" aria-label="จำนวนแพ็ก 66">
+              <button type="button" class="qty-btn minus" aria-label="ลดจำนวน" title="ลดจำนวน">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg>
+              </button>
+              <input class="discount-count" type="number" min="0" value="0" inputmode="numeric" aria-label="จำนวนแพ็ก 66">
+              <button type="button" class="qty-btn plus" aria-label="เพิ่มจำนวน" title="เพิ่มจำนวน">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+              </button>
+            </div>
+
+            <select class="discount-select" aria-label="ส่วนลดแพ็ก 66">
+              <option value="0">ไม่ใช้ส่วนลด</option>
+              <option value="3">ลด 3%</option>
+              <option value="10">ลด 10%</option>
+            </select>
+
+            <strong class="discount-line-total">0 บาท</strong>
+          </div>
+          <div class="discount-row" data-pack="203" data-price="90">
+            <div class="discount-pack"><strong>203 กระดุม</strong><span>90 บาท/แพ็ก</span></div>
+
+            <div class="qty-stepper" aria-label="จำนวนแพ็ก 203">
+              <button type="button" class="qty-btn minus" aria-label="ลดจำนวน" title="ลดจำนวน">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg>
+              </button>
+              <input class="discount-count" type="number" min="0" value="0" inputmode="numeric" aria-label="จำนวนแพ็ก 203">
+              <button type="button" class="qty-btn plus" aria-label="เพิ่มจำนวน" title="เพิ่มจำนวน">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+              </button>
+            </div>
+
+            <select class="discount-select" aria-label="ส่วนลดแพ็ก 203">
+              <option value="0">ไม่ใช้ส่วนลด</option>
+              <option value="3">ลด 3%</option>
+              <option value="10">ลด 10%</option>
+            </select>
+
+            <strong class="discount-line-total">0 บาท</strong>
+          </div>
+          <div class="discount-row" data-pack="335" data-price="145">
+            <div class="discount-pack"><strong>335 กระดุม</strong><span>145 บาท/แพ็ก</span></div>
+
+            <div class="qty-stepper" aria-label="จำนวนแพ็ก 335">
+              <button type="button" class="qty-btn minus" aria-label="ลดจำนวน" title="ลดจำนวน">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg>
+              </button>
+              <input class="discount-count" type="number" min="0" value="0" inputmode="numeric" aria-label="จำนวนแพ็ก 335">
+              <button type="button" class="qty-btn plus" aria-label="เพิ่มจำนวน" title="เพิ่มจำนวน">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+              </button>
+            </div>
+
+            <select class="discount-select" aria-label="ส่วนลดแพ็ก 335">
+              <option value="0">ไม่ใช้ส่วนลด</option>
+              <option value="3">ลด 3%</option>
+              <option value="10">ลด 10%</option>
+            </select>
+
+            <strong class="discount-line-total">0 บาท</strong>
+          </div>
+          <div class="discount-row" data-pack="759" data-price="285">
+            <div class="discount-pack"><strong>759 กระดุม</strong><span>285 บาท/แพ็ก</span></div>
+
+            <div class="qty-stepper" aria-label="จำนวนแพ็ก 759">
+              <button type="button" class="qty-btn minus" aria-label="ลดจำนวน" title="ลดจำนวน">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg>
+              </button>
+              <input class="discount-count" type="number" min="0" value="0" inputmode="numeric" aria-label="จำนวนแพ็ก 759">
+              <button type="button" class="qty-btn plus" aria-label="เพิ่มจำนวน" title="เพิ่มจำนวน">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+              </button>
+            </div>
+
+            <select class="discount-select" aria-label="ส่วนลดแพ็ก 759">
+              <option value="0">ไม่ใช้ส่วนลด</option>
+              <option value="3">ลด 3%</option>
+              <option value="10">ลด 10%</option>
+            </select>
+
+            <strong class="discount-line-total">0 บาท</strong>
+          </div>
+                    <div class="discount-row fixed-discount-row" data-pack="2227" data-price="855" data-fixed3="830" data-fixed10="770">
+            <div class="discount-pack"><strong>2,227 กระดุม</strong><span>855 บาท</span></div>
+
+            <div class="qty-stepper" aria-label="จำนวนแพ็ก 2227">
+              <button type="button" class="qty-btn minus" aria-label="ลดจำนวน" title="ลดจำนวน">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg>
+              </button>
+              <input class="discount-count" type="number" min="0" value="0" inputmode="numeric" aria-label="จำนวนแพ็ก 2227">
+              <button type="button" class="qty-btn plus" aria-label="เพิ่มจำนวน" title="เพิ่มจำนวน">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+              </button>
+            </div>
+
+            <select class="discount-select" aria-label="ส่วนลดแพ็ก 2227">
+              <option value="0">ไม่ใช้ส่วนลด</option>
+              <option value="3">ลด 3%</option>
+              <option value="10">ลด 10%</option>
+            </select>
+
+            <strong class="discount-line-total">0 บาท</strong>
+          </div>
+          <div class="discount-row fixed-discount-row" data-pack="3663" data-price="1430" data-fixed3="1360" data-fixed10="1260">
+            <div class="discount-pack"><strong>3,663 กระดุม</strong><span>1,430 บาท</span></div>
+
+            <div class="qty-stepper" aria-label="จำนวนแพ็ก 3663">
+              <button type="button" class="qty-btn minus" aria-label="ลดจำนวน" title="ลดจำนวน">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg>
+              </button>
+              <input class="discount-count" type="number" min="0" value="0" inputmode="numeric" aria-label="จำนวนแพ็ก 3663">
+              <button type="button" class="qty-btn plus" aria-label="เพิ่มจำนวน" title="เพิ่มจำนวน">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+              </button>
+            </div>
+
+            <select class="discount-select" aria-label="ส่วนลดแพ็ก 3663">
+              <option value="0">ไม่ใช้ส่วนลด</option>
+              <option value="3">ลด 3%</option>
+              <option value="10">ลด 10%</option>
+            </select>
+
+            <strong class="discount-line-total">0 บาท</strong>
+          </div>
+          <div class="discount-row fixed-discount-row" data-pack="7249" data-price="2770" data-fixed3="2720" data-fixed10="2550">
+            <div class="discount-pack"><strong>7,249 กระดุม</strong><span>2,770 บาท</span></div>
+
+            <div class="qty-stepper" aria-label="จำนวนแพ็ก 7249">
+              <button type="button" class="qty-btn minus" aria-label="ลดจำนวน" title="ลดจำนวน">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg>
+              </button>
+              <input class="discount-count" type="number" min="0" value="0" inputmode="numeric" aria-label="จำนวนแพ็ก 7249">
+              <button type="button" class="qty-btn plus" aria-label="เพิ่มจำนวน" title="เพิ่มจำนวน">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+              </button>
+            </div>
+
+            <select class="discount-select" aria-label="ส่วนลดแพ็ก 7249">
+              <option value="0">ไม่ใช้ส่วนลด</option>
+              <option value="3">ลด 3%</option>
+              <option value="10">ลด 10%</option>
+            </select>
+
+            <strong class="discount-line-total">0 บาท</strong>
+          </div>
+        </div>
+
+        <div class="result discount-summary">
+          <div><span class="muted">กระดุมรวม</span><strong id="sumButtons">0 กระดุม</strong></div>
+          <div><span class="muted">ราคาปกติรวม</span><strong id="sumNormal">0 บาท</strong></div>
+          <div><span class="muted">ราคาหลังส่วนลด</span><strong id="sumDiscount">0 บาท</strong></div>
+        </div>
+
+        <button type="button" id="discountBtn" class="mainbtn action-calc" style="margin-top:12px">
+          <span style="display:inline-flex;align-items:center;gap:10px;justify-content:center">
+            <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="4" y="3" width="16" height="18" rx="3"/>
+              <path d="M8 7h8M8 12h2M14 12h2M8 16h2M14 16h2"/>
+            </svg>
+            คำนวณ
+          </span>
+        </button>
+        <button type="button" id="discountClearBtn" class="subbtn action-clear">
+          <span style="display:inline-flex;align-items:center;gap:9px;justify-content:center">
+            <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M7 7l1 13h8l1-13"/>
+            </svg>
+            ล้าง
+          </span>
+        </button>
+      </section>
+    </div>
+
+
+    <div id="resultModal" class="result-modal" aria-hidden="true">
+      <div class="result-modal-card" role="dialog" aria-modal="true" aria-labelledby="resultModalTitle">
+        <div class="result-modal-top">
+          <div class="result-modal-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 3l1.35 4.1a5.5 5.5 0 0 0 3.55 3.55L21 12l-4.1 1.35a5.5 5.5 0 0 0-3.55 3.55L12 21l-1.35-4.1a5.5 5.5 0 0 0-3.55-3.55L3 12l4.1-1.35a5.5 5.5 0 0 0 3.55-3.55L12 3z"/>
+            </svg>
+          </div>
+          <div>
+            <div id="resultModalTitle" class="result-modal-title">สรุปยอด</div>
+            <div class="result-modal-sub">รายละเอียดการคำนวณ</div>
+          </div>
+        </div>
+
+        <div class="result-modal-total">
+          <div class="label">ยอดชำระ</div>
+          <div id="modalFinal" class="value">0 บาท</div>
+        </div>
+
+        <div class="result-modal-breakdown">
+          <div class="result-modal-row"><span>กระดุมรวม</span><strong id="modalButtons">0 กระดุม</strong></div>
+          <div class="result-modal-row"><span>ราคาก่อนส่วนลด</span><strong id="modalNormal">0 บาท</strong></div>
+          <div class="result-modal-row"><span>ส่วนลดรวม</span><strong id="modalSaved">0 บาท</strong></div>
+        </div>
+
+        <button id="modalDoneBtn" class="result-modal-done" type="button">เรียบร้อย</button>
+      </div>
+    </div>
+
+
+    <div id="buttonResultModal" class="result-modal" aria-hidden="true">
+      <div class="result-modal-card" role="dialog" aria-modal="true" aria-labelledby="buttonResultModalTitle">
+        <div class="result-modal-top">
+          <div class="result-modal-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 3l1.35 4.1a5.5 5.5 0 0 0 3.55 3.55L21 12l-4.1 1.35a5.5 5.5 0 0 0-3.55 3.55L12 21l-1.35-4.1a5.5 5.5 0 0 0-3.55-3.55L3 12l4.1-1.35a5.5 5.5 0 0 0 3.55-3.55L12 3z"/>
+            </svg>
+          </div>
+          <div>
+            <div id="buttonResultModalTitle" class="result-modal-title">สรุปยอด</div>
+            <div class="result-modal-sub">รายละเอียดการคำนวณกระดุม</div>
+          </div>
+        </div>
+
+        <div class="result-modal-total">
+          <div class="label">ราคารวม</div>
+          <div id="buttonModalPrice" class="value">0 บาท</div>
+        </div>
+
+        <div class="result-modal-breakdown">
+          <div class="result-modal-row"><span>แพ็กที่แนะนำ</span><strong id="buttonModalPacks">-</strong></div>
+          <div class="result-modal-row"><span>กระดุมรวม</span><strong id="buttonModalButtons">0 กระดุม</strong></div>
+          <div class="result-modal-row"><span>ยอดเติม</span><strong id="buttonModalTopup">0 บาท</strong></div>
+          <div class="result-modal-row"><span>กระดุมที่เติมเกิน</span><strong id="buttonModalExcess">0 กระดุม</strong></div>
+        </div>
+
+        <button id="buttonModalDoneBtn" class="result-modal-done" type="button">เรียบร้อย</button>
+      </div>
+    </div>
+
+    <div class="foot">JAXEN · Website by Yuimellkub · หากต้องการแก้ไข/อัปเดตเว็บ กรุณาติดต่อผู้จัดทำ</div>
+  </main>
+
+<script>
+const rates = [
+  [66,29],
+  [132,58],   // 66 × 2
+  [203,90],
+  [335,145],
+  [538,235],  // 335 + 203
+  [759,285],
+  [962,375],  // 759 + 203
+  [1094,430], // 759 + 335
+  [1226,488], // 759 + 335 + 132
+  [1518,570], // 759 × 2
+  [2277,855], // 759 × 3
+  [3036,1140],
+  [3795,1425],
+  [4554,1710]
+];
+
+document.getElementById('rateList').innerHTML = rates
+  .map(([b,p]) => `
+    <div class="rate-row">
+      <span>${b.toLocaleString()} กระดุม</span>
+      <span>${p.toLocaleString()} บาท</span>
+    </div>
+  `)
+  .join('');
+
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  };
+});
+
+document.querySelectorAll('[data-q]').forEach(btn=>{
+  btn.onclick=()=>{
+    document.getElementById('wanted').value=btn.dataset.q;
+    calculateButtons(false);
+  };
+});
+
+
+// JAXEN shop rules
+// 0–607: use small packs 335 / 203 / 66 and reach the target with the least excess.
+// >607: use 759 as the main pack.
+//   remainder 1–607 -> fill with small packs
+//   remainder 608–758 -> add one more 759 pack
+// Small-pack limits:
+//   335 = max 1 pack
+//   203 = max 1 pack
+//   66  = max 2 packs (66 × 2 = 132)
+// Never use 66 × 3; use 203 instead.
+const SMALL_RATES = [
+  [335,145],
+  [203,90],
+  [66,29]
+];
+const MAIN_PACK = [759,285];
+
+// ยอดเติมต่อแพ็ก (ใช้เฉพาะหน้าคำนวณกระดุมหน้าแรก)
+const TOPUP_VALUE = {
+  759: 690,
+  335: 305,
+  203: 185,
+  66: 60
+};
+
+// ราคาหน้าแรกปัดขึ้นเป็นหลัก 5 เช่น 452 → 455, 509 → 510
+function roundUpTo5(value){
+  return Math.ceil(value / 5) * 5;
+}
+
+function getTopupTotal(items){
+  return items.reduce((sum,[qty,price,count]) => sum + (TOPUP_VALUE[qty] || 0) * count, 0);
+}
+
+function bestSmallCombo(target){
+  if(target <= 0){
+    return {qty:0, cost:0, items:[]};
+  }
+
+  let best = null;
+
+  // Follow shop limits exactly:
+  // 335 <= 1, 203 <= 1, 66 <= 2.
+  for(let c335=0;c335<=1;c335++){
+    for(let c203=0;c203<=1;c203++){
+      for(let c66=0;c66<=2;c66++){
+        const qty = 335*c335 + 203*c203 + 66*c66;
+        if(qty < target) continue;
+
+        const cost = 145*c335 + 90*c203 + 29*c66;
+        const packs = c335 + c203 + c66;
+        const excess = qty - target;
+
+        const candidate = {
+          qty,
+          cost,
+          packs,
+          excess,
+          items: [
+            c335 ? [335,145,c335] : null,
+            c203 ? [203,90,c203] : null,
+            c66 ? [66,29,c66] : null
+          ].filter(Boolean)
+        };
+
+        if(
+          !best ||
+          candidate.excess < best.excess ||
+          (candidate.excess === best.excess && candidate.cost < best.cost) ||
+          (candidate.excess === best.excess && candidate.cost === best.cost && candidate.packs < best.packs)
+        ){
+          best = candidate;
+        }
+      }
+    }
+  }
+
+  return best;
+}
+
+function bestCombo(target){
+  if(!target || target < 1) return null;
+
+  // Small-order zone
+  if(target <= 607){
+    const small = bestSmallCombo(target);
+    return {
+      qty: small.qty,
+      cost: small.cost,
+      items: small.items
+    };
+  }
+
+  const mainCount = Math.floor(target / MAIN_PACK[0]);
+  const remainder = target % MAIN_PACK[0];
+
+  // Exact multiple of 759
+  if(remainder === 0){
+    return {
+      qty: mainCount * MAIN_PACK[0],
+      cost: mainCount * MAIN_PACK[1],
+      items: [[MAIN_PACK[0], MAIN_PACK[1], mainCount]]
+    };
+  }
+
+  // Remainder 608–758 => one more 759
+  if(remainder >= 608){
+    const count = mainCount + 1;
+    return {
+      qty: count * MAIN_PACK[0],
+      cost: count * MAIN_PACK[1],
+      items: [[MAIN_PACK[0], MAIN_PACK[1], count]]
+    };
+  }
+
+  // Remainder 1–607 => fill with small packs
+  const small = bestSmallCombo(remainder);
+  const items = [];
+
+  if(mainCount > 0){
+    items.push([MAIN_PACK[0], MAIN_PACK[1], mainCount]);
+  }
+  items.push(...small.items);
+
+  return {
+    qty: mainCount * MAIN_PACK[0] + small.qty,
+    cost: mainCount * MAIN_PACK[1] + small.cost,
+    items
+  };
+}
+
+let soundEnabled = true;
+try{
+  soundEnabled = localStorage.getItem('jaxenSound') !== 'off';
+}catch(e){
+  soundEnabled = true;
+}
+
+function playPop(){
+  if(!soundEnabled) return;
+  try{
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AudioCtx();
+    const now = ctx.currentTime;
+
+    const master = ctx.createGain();
+    const comp = ctx.createDynamicsCompressor();
+    master.connect(comp);
+    comp.connect(ctx.destination);
+
+    // JAXEN v42: short premium UI confirmation — clean, dark, not too arcade-like.
+    master.gain.setValueAtTime(0.0001, now);
+    master.gain.exponentialRampToValueAtTime(0.25, now + 0.008);
+    master.gain.exponentialRampToValueAtTime(0.0001, now + 0.30);
+
+    // Soft low "thump" to give the popup weight.
+    const pulse = ctx.createOscillator();
+    const pulseGain = ctx.createGain();
+    pulse.type = 'sine';
+    pulse.frequency.setValueAtTime(145, now);
+    pulse.frequency.exponentialRampToValueAtTime(95, now + 0.09);
+    pulseGain.gain.setValueAtTime(0.72, now);
+    pulseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+    pulse.connect(pulseGain);
+    pulseGain.connect(master);
+    pulse.start(now);
+    pulse.stop(now + 0.13);
+
+    // Main glassy confirmation tone.
+    const tone = ctx.createOscillator();
+    const toneGain = ctx.createGain();
+    tone.type = 'sine';
+    tone.frequency.setValueAtTime(620, now + 0.025);
+    tone.frequency.exponentialRampToValueAtTime(780, now + 0.12);
+    toneGain.gain.setValueAtTime(0.0001, now);
+    toneGain.gain.setValueAtTime(0.58, now + 0.025);
+    toneGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.21);
+    tone.connect(toneGain);
+    toneGain.connect(master);
+    tone.start(now + 0.025);
+    tone.stop(now + 0.22);
+
+    // Tiny high sparkle at the end.
+    const sparkle = ctx.createOscillator();
+    const sparkleGain = ctx.createGain();
+    sparkle.type = 'sine';
+    sparkle.frequency.setValueAtTime(1320, now + 0.095);
+    sparkle.frequency.exponentialRampToValueAtTime(1760, now + 0.17);
+    sparkleGain.gain.setValueAtTime(0.0001, now);
+    sparkleGain.gain.setValueAtTime(0.16, now + 0.095);
+    sparkleGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.24);
+    sparkle.connect(sparkleGain);
+    sparkleGain.connect(master);
+    sparkle.start(now + 0.095);
+    sparkle.stop(now + 0.25);
+
+    setTimeout(()=>ctx.close().catch(()=>{}), 500);
+  }catch(e){}
+}
+
+function animateResult(el){
+  el.animate(
+    [
+      {transform:'scale(.985)', opacity:.55},
+      {transform:'scale(1.012)', opacity:1},
+      {transform:'scale(1)', opacity:1}
+    ],
+    {duration:220, easing:'ease-out'}
+  );
+}
+
+function calculateButtons(showModal=true){
+  const target=Number(document.getElementById('wanted').value);
+  if(!target || target<1) return;
+
+  const best=bestCombo(target);
+  if(!best) return;
+
+  const packLines = best.items
+    .map(([qty,price,count]) => `
+      <div style="display:flex;justify-content:flex-start;gap:12px;gap:12px;padding:8px 0;border-bottom:1px solid #202020">
+        <span>แพ็ก ${qty.toLocaleString()} × ${count}</span>
+        <span>${(price*count).toLocaleString()} บาท</span>
+      </div>`)
+    .join('');
+
+  const packSummary = best.items
+    .map(([qty,price,count]) => `<span class="chip">${qty.toLocaleString()} × ${count}</span>`)
+    .join('');
+
+  const roundedCost = roundUpTo5(best.cost);
+  const topupTotal = getTopupTotal(best.items);
+
+  const resultEl = document.getElementById('result');
+  resultEl.innerHTML = `
+    <div class="big">แนะนำแพ็กสำหรับ ${target.toLocaleString()} กระดุม</div>
+    <div style="margin-top:12px">${packLines}</div>
+    <div style="margin-top:14px;padding-top:12px;border-top:1px solid #303030">
+      <div style="display:flex;justify-content:flex-start;gap:12px;margin-bottom:7px">
+        <span class="muted">กระดุมรวม</span>
+        <strong>${best.qty.toLocaleString()} กระดุม</strong>
+      </div>
+      <div style="display:flex;justify-content:flex-start;gap:12px;margin-bottom:7px">
+        <span class="muted">ยอดเติม</span>
+        <strong>${topupTotal.toLocaleString()}</strong>
+      </div>
+      <div style="display:flex;justify-content:flex-start;gap:12px;margin-bottom:7px">
+        <span class="muted">กระดุมที่เติมเกิน</span>
+        <strong>${Math.max(0,best.qty-target).toLocaleString()} กระดุม</strong>
+      </div>
+      <div style="display:flex;justify-content:flex-start;gap:12px">
+        <span class="muted">ราคารวม</span>
+        <strong>${roundedCost.toLocaleString()} บาท</strong>
+      </div>
+    </div>
+    <div class="packs">${packSummary}</div>
+  `;
+
+  animateResult(resultEl);
+
+  const packText = best.items
+    .map(([qty,price,count]) => `${qty.toLocaleString()} × ${count}`)
+    .join(' + ');
+
+  document.getElementById('buttonModalPrice').textContent = `${roundedCost.toLocaleString()} บาท`;
+  document.getElementById('buttonModalPacks').textContent = packText || '-';
+  document.getElementById('buttonModalButtons').textContent = `${best.qty.toLocaleString()} กระดุม`;
+  document.getElementById('buttonModalTopup').textContent = `${topupTotal.toLocaleString()}`;
+  document.getElementById('buttonModalExcess').textContent = `${Math.max(0,best.qty-target).toLocaleString()} กระดุม`;
+
+  if(showModal){
+    playPop();
+    const modal = document.getElementById('buttonResultModal');
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden','false');
+  }
+}
+
+document.getElementById('calcBtn').onclick=()=>calculateButtons(true);
+
+document.getElementById('wanted').addEventListener('input', ()=>{
+  const value = Number(document.getElementById('wanted').value);
+  if(value > 0){
+    calculateButtons(false);
+  }
+});
+
+document.getElementById('clearBtn').onclick=()=>{
+  document.getElementById('wanted').value='';
+  document.getElementById('result').innerHTML=`
+    <div class="big">ตอนนี้: 0 กระดุม / 0 บาท</div>
+    <div class="muted">ตัวอย่างนี้จะเลือกชุดแพ็กที่ “ถึงจำนวนที่ต้องการและราคาต่ำที่สุด” จากเรทที่ให้มา</div>
+  `;
+};
+
+function calculateDiscountRows(){
+  let buttons=0, normal=0, discounted=0;
+
+  document.querySelectorAll('.discount-row').forEach(row=>{
+    const pack=Number(row.dataset.pack);
+    const price=Number(row.dataset.price);
+    const count=Math.max(0,Number(row.querySelector('.discount-count').value)||0);
+    const pct=Math.max(0,Math.min(100,Number(row.querySelector('.discount-select').value)||0));
+
+    let lineNormal=price*count;
+    let lineFinal=0;
+
+    if(row.classList.contains('fixed-discount-row')){
+      const fixed3=Number(row.dataset.fixed3);
+      const fixed10=Number(row.dataset.fixed10);
+      const normalUnit=price;
+
+      const finalUnit =
+        pct === 3 ? fixed3 :
+        pct === 10 ? fixed10 :
+        normalUnit;
+
+      lineNormal = normalUnit * count;
+      lineFinal = finalUnit * count;
+    }else{
+      // Ordinary packs: calculate percentage and round each line upward.
+      lineFinal=count > 0 ? Math.ceil(lineNormal*(1-pct/100)) : 0;
+    }
+
+    buttons += pack*count;
+    normal += lineNormal;
+    discounted += lineFinal;
+
+    row.querySelector('.discount-line-total').textContent =
+      `${lineFinal.toLocaleString()} บาท`;
+  });
+
+  document.getElementById('sumButtons').textContent=`${buttons.toLocaleString()} กระดุม`;
+  document.getElementById('sumNormal').textContent=`${normal.toLocaleString()} บาท`;
+  document.getElementById('sumDiscount').textContent=
+    `${discounted.toLocaleString()} บาท`;
+
+  return {buttons,normal,discounted};
+}
+
+
+document.querySelectorAll('.qty-stepper').forEach(stepper=>{
+  const input = stepper.querySelector('.discount-count');
+  const minus = stepper.querySelector('.minus');
+  const plus = stepper.querySelector('.plus');
+
+  minus.addEventListener('click', ()=>{
+    input.value = Math.max(0, (Number(input.value)||0) - 1);
+    calculateDiscountRows();
+  });
+
+  plus.addEventListener('click', ()=>{
+    input.value = (Number(input.value)||0) + 1;
+    calculateDiscountRows();
+  });
+});
+
+document.getElementById('discountBtn').onclick=()=>{
+  const result = calculateDiscountRows();
+  playPop();
+  animateResult(document.querySelector('.discount-summary'));
+
+  const saved = Math.max(0, result.normal - result.discounted);
+  document.getElementById('modalButtons').textContent = `${result.buttons.toLocaleString()} กระดุม`;
+  document.getElementById('modalNormal').textContent = `${result.normal.toLocaleString()} บาท`;
+  document.getElementById('modalSaved').textContent = `${saved.toLocaleString()} บาท`;
+  document.getElementById('modalFinal').textContent = `${result.discounted.toLocaleString()} บาท`;
+
+  const modal = document.getElementById('resultModal');
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden','false');
+};
+
+document.querySelectorAll('.discount-count,.discount-select').forEach(el=>{
+  el.addEventListener('change', calculateDiscountRows);
+});
+
+document.getElementById('discountClearBtn').onclick=()=>{
+  document.querySelectorAll('.discount-count').forEach(el=>el.value=0);
+  document.querySelectorAll('.discount-select').forEach(el=>el.value=0);
+  calculateDiscountRows();
+};
+
+const resultModal = document.getElementById('resultModal');
+const modalDoneBtn = document.getElementById('modalDoneBtn');
+
+function closeResultModal(){
+  resultModal.classList.remove('show');
+  resultModal.setAttribute('aria-hidden','true');
+}
+
+modalDoneBtn.addEventListener('click', closeResultModal);
+
+resultModal.addEventListener('click', (e)=>{
+  if(e.target === resultModal) closeResultModal();
+});
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape' && resultModal.classList.contains('show')){
+    closeResultModal();
+  }
+});
+
+
+const buttonResultModal = document.getElementById('buttonResultModal');
+const buttonModalDoneBtn = document.getElementById('buttonModalDoneBtn');
+
+function closeButtonResultModal(){
+  buttonResultModal.classList.remove('show');
+  buttonResultModal.setAttribute('aria-hidden','true');
+}
+
+buttonModalDoneBtn.addEventListener('click', closeButtonResultModal);
+
+buttonResultModal.addEventListener('click', (e)=>{
+  if(e.target === buttonResultModal) closeButtonResultModal();
+});
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape' && buttonResultModal.classList.contains('show')){
+    closeButtonResultModal();
+  }
+});
+
+
+
+
+
+document.addEventListener('DOMContentLoaded', function(){
+  const soundToggle = document.getElementById('soundToggle');
+  if(!soundToggle) return;
+
+  function syncSoundToggle(){
+    soundToggle.classList.toggle('muted', !soundEnabled);
+    soundToggle.setAttribute('aria-label', soundEnabled ? 'ปิดเสียง' : 'เปิดเสียง');
+    soundToggle.title = soundEnabled ? 'ปิดเสียง' : 'เปิดเสียง';
+  }
+
+  soundToggle.addEventListener('click', function(){
+    soundEnabled = !soundEnabled;
+    try{
+      localStorage.setItem('jaxenSound', soundEnabled ? 'on' : 'off');
+    }catch(e){}
+    syncSoundToggle();
+  });
+
+  syncSoundToggle();
+});
+
+</script>
+
+<button class="sound-toggle" id="soundToggle" type="button" aria-label="ปิดเสียง" title="ปิดเสียง">
+  <svg class="sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M11 5 6.8 8.5H3.5v7h3.3L11 19V5Z"/>
+    <path d="M15 9.2a4 4 0 0 1 0 5.6"/>
+    <path d="M17.8 6.5a7.5 7.5 0 0 1 0 11"/>
+  </svg>
+  <svg class="sound-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M11 5 6.8 8.5H3.5v7h3.3L11 19V5Z"/>
+    <path d="m16 10 5 5"/>
+    <path d="m21 10-5 5"/>
+  </svg>
+</button>
+
+</body>
+</html>
