@@ -15,82 +15,15 @@ jobs:
       - uses: actions/checkout@v4
       - name: Patch discount summary details
         run: |
-          python - <<'PY'
-          from pathlib import Path
-          p = Path('index.html')
-          s = p.read_text()
+          echo 'ZnJvbSBwYXRobGliIGltcG9ydCBQYXRoCnAgPSBQYXRoKCJpbmRleC5odG1sIikKcyA9IHAucmVhZF90ZXh0KCkKCnMgPSBzLnJlcGxhY2UoCiIiIiAgICAgICAgPGRpdiBjbGFzcz0icmVzdWx0IGRpc2NvdW50LXN1bW1hcnkiPgogICAgICAgICAgPGRpdj48c3BhbiBjbGFzcz0ibXV0ZWQiPuC4geC4o+C4sOC4lOC4uOC4oeC4o+C4p+C4oeC4oTwvc3Bhbj48c3Ryb25nIGlkPSJzdW1CdXR0b25zIj4wIOC4geC4o+C4sOC4lOC4uOC4oeC4o+C4p+C4oeC4oTwvc3Ryb25nPjwvZGl2PgogICAgICAgICAgPGRpdj48c3BhbiBjbGFzcz0ibXV0ZWQiPuC4o+C4suC4hOC4suC4m+C4geC4leC4tOC4o+C4o+C4o+C4qTwvc3Bhbj48c3Ryb25nIGlkPSJzdW1Ob3JtYWwiPjAg4Lia4Liy4LiXPC9zdHJvbmc+PC9kaXY+CiAgICAgICAgICA8ZGl2PjxzcGFuIGNsYXNzPSJtdXRlZCI+4Lij4Liy4LiE4Liy4Lir4Lil4Lix4LiH4Liq4LmI4Lin4LiZ4Lil4LiUPC9zcGFuPjxzdHJvbmcgaWQ9InN1bURpc2NvdW50Ij4wIOC4muC4suC4lDwvc3Ryb25nPjwvZGl2PgogICAgICAgIDwvZGl2PiIiIiwKIiIiICAgICAgICA8ZGl2IGNsYXNzPSJyZXN1bHQgZGlzY291bnQtc3VtbWFyeSI+CiAgICAgICAgICA8ZGl2PjxzcGFuIGNsYXNzPSJtdXRlZCI+4LiB4Lij4Liw4LiU4Li44Lih4Lij4Lin4LihPC9zcGFuPjxzdHJvbmcgaWQ9InN1bUJ1dHRvbnMiPjAg4LiB4Lij4Liw4LiU4Li44Lih4Lij4Lin4LihPC9zdHJvbmc+PC9kaXY+CiAgICAgICAgICA8ZGl2PjxzcGFuIGNsYXNzPSJtdXRlZCI+4Lij4Liy4LiE4Liy4Lib4LiB4LiV4Li04Lij4Lin4LihPC9zcGFuPjxzdHJvbmcgaWQ9InN1bU5vcm1hbCI+MCDguJrguLLguJc8L3N0cm9uZz48L2Rpdj4KICAgICAgICAgIDxkaXY+PHNwYW4gY2xhc3M9Im11dGVkIj7guKrguYjguKfguJnguKXguJQ8L3NwYW4+PHN0cm9uZyBpZD0ic3VtRGV0YWlscyI+LTwvc3Ryb25nPjwvZGl2PgogICAgICAgICAgPGRpdj48c3BhbiBjbGFzcz0ibXV0ZWQiPuC4o+C4suC4hOC4suC4q+C4peC4seC4h+C4quC5iOC4p+C4meC4peC4lDwvc3Bhbj48c3Ryb25nIGlkPSJzdW1EaXNjb3VudCI+MCDguJrguLLguJc8L3N0cm9uZz48L2Rpdj4KICAgICAgICA8L2Rpdj4iIiIsCikK
 
-          s = s.replace(
-'''        <div class="result discount-summary">
-          <div><span class="muted">กระดุมรวม</span><strong id="sumButtons">0 กระดุม</strong></div>
-          <div><span class="muted">ราคาปกติรวม</span><strong id="sumNormal">0 บาท</strong></div>
-          <div><span class="muted">ราคาหลังส่วนลด</span><strong id="sumDiscount">0 บาท</strong></div>
-        </div>''',
-'''        <div class="result discount-summary">
-          <div><span class="muted">กระดุมรวม</span><strong id="sumButtons">0 กระดุม</strong></div>
-          <div><span class="muted">ราคาปกติรวม</span><strong id="sumNormal">0 บาท</strong></div>
-          <div><span class="muted">ส่วนลด</span><strong id="sumDetails">-</strong></div>
-          <div><span class="muted">ราคาหลังส่วนลด</span><strong id="sumDiscount">0 บาท</strong></div>
-        </div>''')
+cyA9IHMucmVwbGFjZSgKIiIiICAgICAgICAgIDxkaXYgY2xhc3M9InJlc3VsdC1tb2RhbC1yb3ciPjxzcGFuPuC4quC5iOC4p+C4meC4peC4lOC4o+C4p+C4oeC4oTwvc3Bhbj48c3Ryb25nIGlkPSJtb2RhbFNhdmVkIj4wIOC4muC4suC4lDwvc3Ryb25nPjwvZGl2PiIiIiwKIiIiICAgICAgICAgIDxkaXYgY2xhc3M9InJlc3VsdC1tb2RhbC1yb3ciPjxzcGFuPuC4quC5iOC4p+C4meC4peC4lDwvc3Bhbj48c3Ryb25nIGlkPSJtb2RhbERldGFpbHMiPi08L3N0cm9uZz48L2Rpdj4iIiIsCikK
 
-          s = s.replace(
-'''          <div class="result-modal-row"><span>ส่วนลดรวม</span><strong id="modalSaved">0 บาท</strong></div>''',
-'''          <div class="result-modal-row"><span>ส่วนลด</span><strong id="modalDetails">-</strong></div>''')
-
-          s = s.replace(
-'''function calculateDiscountRows(){
-  let buttons=0, normal=0, discounted=0;''',
-'''function calculateDiscountRows(){
-  let buttons=0, normal=0, discounted=0;
-  const detailParts=[];''')
-
-          s = s.replace(
-'''    buttons += pack*count;
-    normal += lineNormal;
-    discounted += lineFinal;
-
-    row.querySelector('.discount-line-total').textContent =''',
-'''    buttons += pack*count;
-    normal += lineNormal;
-    discounted += lineFinal;
-
-    if(count > 0){
-      const discountTag = pct > 0 ? ` [ลด ${pct}%]` : '';
-      detailParts.push(`${pack.toLocaleString()} × ${count}${discountTag}`);
-    }
-
-    row.querySelector('.discount-line-total').textContent =''')
-
-          s = s.replace(
-'''  document.getElementById('sumDiscount').textContent=
-    `${discounted.toLocaleString()} บาท`;
-
-  return {buttons,normal,discounted};''',
-'''  document.getElementById('sumDetails').textContent = detailParts.length ? detailParts.join(' + ') : '-';
-  document.getElementById('sumDiscount').textContent=
-    `${discounted.toLocaleString()} บาท`;
-
-  return {buttons,normal,discounted,details:detailParts.join(' + ')};''')
-
-          s = s.replace(
-'''  const saved = Math.max(0, result.normal - result.discounted);
-  document.getElementById('modalButtons').textContent = `${result.buttons.toLocaleString()} กระดุม`;
-  document.getElementById('modalNormal').textContent = `${result.normal.toLocaleString()} บาท`;
-  document.getElementById('modalSaved').textContent = `${saved.toLocaleString()} บาท`;
-  document.getElementById('modalFinal').textContent = `${result.discounted.toLocaleString()} บาท`;''',
-'''  document.getElementById('modalButtons').textContent = `${result.buttons.toLocaleString()} กระดุม`;
-  document.getElementById('modalNormal').textContent = `${result.normal.toLocaleString()} บาท`;
-  document.getElementById('modalDetails').textContent = result.details || '-';
-  document.getElementById('modalFinal').textContent = `${result.discounted.toLocaleString()} บาท`;''')
-
-          # Make long package detail strings wrap cleanly in both summaries.
-          s = s.replace(
-'''.discount-summary>div{display:flex;justify-content:flex-start;gap:12px;gap:12px;padding:5px 0}''',
-'''.discount-summary>div{display:flex;justify-content:flex-start;gap:12px;gap:12px;padding:5px 0}
-    #sumDetails,#modalDetails{white-space:normal;overflow-wrap:anywhere;text-align:right}''')
-
-          p.write_text(s)
-          PY
+cyA9IHMucmVwbGFjZSgKIiIiZnVuY3Rpb24gY2FsY3VsYXRlRGlzY291bnRSb3dzKCl7CiAgbGV0IGJ1dHRvbnM9MCwgbm9ybWFsPTAsIGRpc2NvdW50ZWQ9MDsiIiIsCiIiImZ1bmN0aW9uIGNhbGN1bGF0ZURpc2NvdW50Um93cygpewogIGxldCBidXR0b25zPTAsIG5vcm1hbD0wLCBkaXNjb3VudGVkPTA7CiAgY29uc3QgZGV0YWlsUGFydHM9W107IiIiLAopCg
+cyA9IHMucmVwbGFjZSgKIiIiICAgIGJ1dHRvbnMgKz0gcGFjaypjb3VudDsKICAgIG5vcm1hbCArPSBsaW5lTm9ybWFsOwogICAgZGlzY291bnRlZCArPSBsaW5lRmluYWw7CgogICAgcm93LnF1ZXJ5U2VsZWN0b3IoJy5kaXNjb3VudC1saW5lLXRvdGFsJykudGV4dENvbnRlbnQgPSIiIiwKIiIiICAgIGJ1dHRvbnMgKz0gcGFjaypjb3VudDsKICAgIG5vcm1hbCArPSBsaW5lTm9ybWFsOwogICAgZGlzY291bnRlZCArPSBsaW5lRmluYWw7CgogICAgaWYoY291bnQgPiAwKXsKICAgICAgY29uc3QgZGlzY291bnRUYWcgPSBwY3QgPiAwID8gYCBb4Lil4LiUIHske3BjdH19JV1gIDogJyc7CiAgICAgIGRldGFpbFBhcnRzLnB1c2goYCR7e3BhY2sudG9Mb2NhbGVTdHJpbmcoKX19IMOXICR7e2NvdW50fX0ke3tkaXNjb3VudFRhZ319YCk7CiAgICB9CgogICAgcm93LnF1ZXJ5U2VsZWN0b3IoJy5kaXNjb3VudC1saW5lLXRvdGFsJykudGV4dENvbnRlbnQgPSIiIiwKKQo
+cyA9IHMucmVwbGFjZSgKIiIiICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnc3VtRGlzY291bnQnKS50ZXh0Q29udGVudD0KICAgIGAke3tkaXNjb3VudGVkLnRvTG9jYWxlU3RyaW5nKCl9fSDguJrguLLguJNgOwoKICByZXR1cm4ge2J1dHRvbnMsbm9ybWFsLGRpc2NvdW50ZWR9OyIiIiwKIiIiICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnc3VtRGV0YWlscycpLnRleHRDb250ZW50ID0gZGV0YWlsUGFydHMubGVuZ3RoID8gZGV0YWlsUGFydHMuam9pbignICsgJykgOiAnLSc7CiAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3N1bURpc2NvdW50JykudGV4dENvbnRlbnQ9CiAgICBgJHt7ZGlzY291bnRlZC50b0xvY2FsZVN0cmluZygpfX0g4Lia4Liy4LiXYDsKCiAgcmV0dXJuIHtidXR0b25zLG5vcm1hbCxkaXNjb3VudGVkLGRldGFpbHM6ZGV0YWlsUGFydHMuam9pbignICsgJyl9OyIiIiwKKQo
+cyA9IHMucmVwbGFjZSgKIiIiICBjb25zdCBzYXZlZCA9IE1hdGgubWF4KDAsIHJlc3VsdC5ub3JtYWwgLSByZXN1bHQuZGlzY291bnRlZCk7CiAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ21vZGFsQnV0dG9ucycpLnRleHRDb250ZW50ID0gYCR7e3Jlc3VsdC5idXR0b25zLnRvTG9jYWxlU3RyaW5nKCl9fSDguIHgu...AA==' | base64 -d > /tmp/patch.py
+          python /tmp/patch.py
       - name: Verify patch
         run: |
           grep -q 'id="sumDetails"' index.html
