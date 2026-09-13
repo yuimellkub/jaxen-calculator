@@ -1,0 +1,109 @@
+name: Patch discount summary
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch discount summary details
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+
+          s = s.replace(
+'''        <div class="result discount-summary">
+          <div><span class="muted">กระดุมรวม</span><strong id="sumButtons">0 กระดุม</strong></div>
+          <div><span class="muted">ราคาปกติรวม</span><strong id="sumNormal">0 บาท</strong></div>
+          <div><span class="muted">ราคาหลังส่วนลด</span><strong id="sumDiscount">0 บาท</strong></div>
+        </div>''',
+'''        <div class="result discount-summary">
+          <div><span class="muted">กระดุมรวม</span><strong id="sumButtons">0 กระดุม</strong></div>
+          <div><span class="muted">ราคาปกติรวม</span><strong id="sumNormal">0 บาท</strong></div>
+          <div><span class="muted">ส่วนลด</span><strong id="sumDetails">-</strong></div>
+          <div><span class="muted">ราคาหลังส่วนลด</span><strong id="sumDiscount">0 บาท</strong></div>
+        </div>''')
+
+          s = s.replace(
+'''          <div class="result-modal-row"><span>ส่วนลดรวม</span><strong id="modalSaved">0 บาท</strong></div>''',
+'''          <div class="result-modal-row"><span>ส่วนลด</span><strong id="modalDetails">-</strong></div>''')
+
+          s = s.replace(
+'''function calculateDiscountRows(){
+  let buttons=0, normal=0, discounted=0;''',
+'''function calculateDiscountRows(){
+  let buttons=0, normal=0, discounted=0;
+  const detailParts=[];''')
+
+          s = s.replace(
+'''    buttons += pack*count;
+    normal += lineNormal;
+    discounted += lineFinal;
+
+    row.querySelector('.discount-line-total').textContent =''',
+'''    buttons += pack*count;
+    normal += lineNormal;
+    discounted += lineFinal;
+
+    if(count > 0){
+      const discountTag = pct > 0 ? ` [ลด ${pct}%]` : '';
+      detailParts.push(`${pack.toLocaleString()} × ${count}${discountTag}`);
+    }
+
+    row.querySelector('.discount-line-total').textContent =''')
+
+          s = s.replace(
+'''  document.getElementById('sumDiscount').textContent=
+    `${discounted.toLocaleString()} บาท`;
+
+  return {buttons,normal,discounted};''',
+'''  document.getElementById('sumDetails').textContent = detailParts.length ? detailParts.join(' + ') : '-';
+  document.getElementById('sumDiscount').textContent=
+    `${discounted.toLocaleString()} บาท`;
+
+  return {buttons,normal,discounted,details:detailParts.join(' + ')};''')
+
+          s = s.replace(
+'''  const saved = Math.max(0, result.normal - result.discounted);
+  document.getElementById('modalButtons').textContent = `${result.buttons.toLocaleString()} กระดุม`;
+  document.getElementById('modalNormal').textContent = `${result.normal.toLocaleString()} บาท`;
+  document.getElementById('modalSaved').textContent = `${saved.toLocaleString()} บาท`;
+  document.getElementById('modalFinal').textContent = `${result.discounted.toLocaleString()} บาท`;''',
+'''  document.getElementById('modalButtons').textContent = `${result.buttons.toLocaleString()} กระดุม`;
+  document.getElementById('modalNormal').textContent = `${result.normal.toLocaleString()} บาท`;
+  document.getElementById('modalDetails').textContent = result.details || '-';
+  document.getElementById('modalFinal').textContent = `${result.discounted.toLocaleString()} บาท`;''')
+
+          # Make long package detail strings wrap cleanly in both summaries.
+          s = s.replace(
+'''.discount-summary>div{display:flex;justify-content:flex-start;gap:12px;gap:12px;padding:5px 0}''',
+'''.discount-summary>div{display:flex;justify-content:flex-start;gap:12px;gap:12px;padding:5px 0}
+    #sumDetails,#modalDetails{white-space:normal;overflow-wrap:anywhere;text-align:right}''')
+
+          p.write_text(s)
+          PY
+      - name: Verify patch
+        run: |
+          grep -q 'id="sumDetails"' index.html
+          grep -q 'id="modalDetails"' index.html
+          grep -q 'detailParts.push' index.html
+      - name: Commit update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          if git diff --cached --quiet; then
+            echo "No changes needed"
+            exit 0
+          fi
+          git commit -m "Show selected packs in discount summary"
+          git push
