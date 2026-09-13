@@ -1394,14 +1394,17 @@ button{
 }
 
 /* v45 — readable discount breakdown */
-.discount-detail-summary{align-items:flex-start !important;}
-.discount-detail-row{align-items:flex-start;}
+.discount-detail-summary{align-items:stretch !important;flex-direction:column !important;gap:8px !important;}
+.discount-detail-row{align-items:stretch;flex-direction:column;gap:8px !important;}
+.discount-detail-summary > .muted,
+.discount-detail-row > span:first-child{display:block;width:100%;text-align:left;}
 .discount-detail-list{
   display:flex;
   flex-direction:column;
   gap:7px;
   flex:1;
   min-width:0;
+  width:100%;
 }
 .discount-detail-item{
   display:flex;
