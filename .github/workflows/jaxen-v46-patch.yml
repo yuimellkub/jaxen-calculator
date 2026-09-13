@@ -1,0 +1,31 @@
+name: JAXEN v46 patch
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/jaxen-v46-patch.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Move discount label above list
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          s=s.replace('.discount-detail-summary{align-items:flex-start !important;}\n.discount-detail-row{align-items:flex-start;}', '.discount-detail-summary{align-items:stretch !important;flex-direction:column !important;gap:8px !important;}\n.discount-detail-row{align-items:stretch;flex-direction:column;gap:8px !important;}\n.discount-detail-summary > .muted,\n.discount-detail-row > span:first-child{display:block;width:100%;text-align:left;}')
+          s=s.replace('  flex:1;\n  min-width:0;\n}', '  flex:1;\n  min-width:0;\n  width:100%;\n}', 1)
+          s=s.replace('@media(max-width:520px){\n  .result-modal-row.discount-detail-row{display:grid;grid-template-columns:72px 1fr;gap:10px;}\n  .discount-detail-item{padding:7px 8px;}\n}', '@media(max-width:520px){\n  .result-modal-row.discount-detail-row{display:flex;flex-direction:column;gap:8px;}\n  .discount-detail-item{padding:7px 8px;}\n}')
+          p.write_text(s)
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git diff --cached --quiet || git commit -m 'Improve discount breakdown layout'
+          git push
